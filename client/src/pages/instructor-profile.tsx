@@ -114,7 +114,7 @@ export default function InstructorProfile() {
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-slate-600">Total students:</span>
-                      <span className="font-medium">{courses.reduce((sum, course) => sum + course.totalStudents, 0)}</span>
+                      <span className="font-medium">{courses.reduce((sum, course) => sum + (course.totalStudents || 0), 0)}</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-slate-600">Courses:</span>
