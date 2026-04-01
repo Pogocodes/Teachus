@@ -64,10 +64,10 @@ export default function InstructorProfile() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-center">
             <div className="lg:col-span-2">
               <div className="flex items-center mb-6">
-                <img 
-                  src={instructor.user.avatar || "https://placehold.co/120x120"} 
+                <img
+                  src={instructor.user.avatar || "https://placehold.co/120x120"}
                   alt={instructor.user.fullName}
-                  className="w-32 h-32 rounded-full mr-6 object-cover border-4 border-white/20" 
+                  className="w-32 h-32 rounded-full mr-6 object-cover border-4 border-white/20"
                 />
                 <div>
                   <h1 className="text-4xl font-bold mb-2">{instructor.user.fullName}</h1>
@@ -91,12 +91,12 @@ export default function InstructorProfile() {
                   </div>
                 </div>
               </div>
-              
+
               <p className="text-blue-100 text-lg leading-relaxed">
                 {instructor.user.bio || instructor.experience}
               </p>
             </div>
-            
+
             <div>
               <Card>
                 <CardContent className="p-6">
@@ -106,7 +106,7 @@ export default function InstructorProfile() {
                     </p>
                     <p className="text-slate-600">Starting rate</p>
                   </div>
-                  
+
                   <div className="space-y-3 mb-6">
                     <div className="flex items-center justify-between">
                       <span className="text-slate-600">Response time:</span>
@@ -121,7 +121,7 @@ export default function InstructorProfile() {
                       <span className="font-medium">{courses.length}</span>
                     </div>
                   </div>
-                  
+
                   <div className="space-y-3">
                     <Link href={`/booking/${instructor.id}`}>
                       <Button className="w-full" size="lg">
@@ -132,7 +132,7 @@ export default function InstructorProfile() {
                       Send Message
                     </Button>
                   </div>
-                  
+
                   <div className="mt-6 pt-6 border-t border-slate-200">
                     <h4 className="font-semibold text-slate-800 mb-4">Availability Options:</h4>
                     <div className="space-y-4">
@@ -141,7 +141,7 @@ export default function InstructorProfile() {
                         {/* Glassmorphism gradient effect */}
                         <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-slate-900 to-slate-900 pointer-events-none"></div>
                         <div className="absolute -inset-1 bg-gradient-to-r from-primary to-blue-600 rounded-xl blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
-                        
+
                         <div className="relative p-4 flex items-center justify-between">
                           <div className="flex items-center space-x-3">
                             <div className="relative w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center border border-slate-700 top-0">
@@ -186,7 +186,7 @@ export default function InstructorProfile() {
             <TabsTrigger value="reviews">Reviews ({reviews.length})</TabsTrigger>
             <TabsTrigger value="schedule">Schedule</TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value="about" className="mt-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <Card>
@@ -196,20 +196,20 @@ export default function InstructorProfile() {
                     <p className="text-slate-600 leading-relaxed mb-4">
                       {instructor.user.bio || instructor.experience}
                     </p>
-                    
+
                     <h4 className="text-lg font-semibold text-slate-800 mb-3">Experience</h4>
                     <p className="text-slate-600 mb-4">{instructor.experience}</p>
-                    
+
                     <h4 className="text-lg font-semibold text-slate-800 mb-3">Teaching Approach</h4>
                     <p className="text-slate-600">
-                      I believe in hands-on learning with real-world applications. My teaching style focuses on 
-                      breaking down complex concepts into digestible parts and providing practical examples that 
+                      I believe in hands-on learning with real-world applications. My teaching style focuses on
+                      breaking down complex concepts into digestible parts and providing practical examples that
                       students can immediately apply.
                     </p>
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card>
                 <CardContent className="p-6">
                   <h3 className="text-xl font-semibold text-slate-800 mb-4">Specialties & Skills</h3>
@@ -224,7 +224,7 @@ export default function InstructorProfile() {
                         ))}
                       </div>
                     </div>
-                    
+
                     <div>
                       <h4 className="font-semibold text-slate-800 mb-2">Achievements</h4>
                       <ul className="space-y-2 text-sm text-slate-600">
@@ -242,7 +242,7 @@ export default function InstructorProfile() {
                         </li>
                       </ul>
                     </div>
-                    
+
                     <div>
                       <h4 className="font-semibold text-slate-800 mb-2">Teaching Stats</h4>
                       <div className="grid grid-cols-2 gap-4">
@@ -261,7 +261,7 @@ export default function InstructorProfile() {
               </Card>
             </div>
           </TabsContent>
-          
+
           <TabsContent value="courses" className="mt-6">
             {courses.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -279,7 +279,7 @@ export default function InstructorProfile() {
               </Card>
             )}
           </TabsContent>
-          
+
           <TabsContent value="reviews" className="mt-6">
             {reviews.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -297,7 +297,7 @@ export default function InstructorProfile() {
               </Card>
             )}
           </TabsContent>
-          
+
           <TabsContent value="schedule" className="mt-6">
             <Card>
               <CardContent className="p-6">
@@ -320,11 +320,11 @@ export default function InstructorProfile() {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div>
                     <h4 className="font-semibold text-slate-800 mb-3">Time Zone</h4>
                     <p className="text-slate-600 text-sm mb-4">UTC-5 (Eastern Time)</p>
-                    
+
                     <h4 className="font-semibold text-slate-800 mb-3">Session Duration Options</h4>
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
@@ -346,7 +346,7 @@ export default function InstructorProfile() {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="mt-6 pt-6 border-t border-slate-200">
                   <Link href={`/booking/${instructor.id}`}>
                     <Button size="lg">
