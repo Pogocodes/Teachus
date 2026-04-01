@@ -205,26 +205,49 @@ export async function registerRoutes(app: Express, storage: IStorage): Promise<S
         return res.status(400).json({ message: "date query parameter is required" });
       }
 
-      // Default working hours
-      const standardSlots = ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00", "17:00", "18:00"];
-      
+      const instructor = await storage.getInstructor(instructorId);
+      if (!instructor) {
+        return res.status(404).json({ message: "Instructor not found" });
+      }
+
+      // Check against instructor's availability
+      let standardSlots = ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00", "17:00", "18:00"];
+      const dateObj = new Date(dateStr);
+      const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+      const dayName = daysOfWeek[dateObj.getDay()];
+
+      if (instructor.availability && instructor.availability.days && instructor.availability.times) {
+        if (!instructor.availability.days.includes(dayName)) {
+          return res.json({ availableSlots: [] }); // Not available on this day
+        }
+        // Exclude generic slots and use the instructor's configured time slots
+        standardSlots = instructor.availability.times;
+      }
+
       const bookings = await storage.getBookingsByInstructor(instructorId);
       
       const dateBookings = bookings.filter(b => {
         const bDate = new Date(b.sessionDate);
-        return bDate.toISOString().split('T')[0] === dateStr && b.status !== "cancelled";
+        return bDate.toISOString().split('T')[0] === dateStr && b.status !== "cancelled" && b.status !== "rejected";
       });
 
       const bookedHours = dateBookings.flatMap(b => {
         const hr = new Date(b.sessionDate).getHours();
+        
+        // Handle durations stored as minutes (e.g. 30, 60, 90 from legacy usage)
+        let hoursDuration = b.duration;
+        if (hoursDuration > 12) {
+            hoursDuration = hoursDuration / 60;
+        }
+
         // Assume slots are blocked for the full duration
-        return Array.from({length: Math.ceil(b.duration)}, (_, i) => hr + i);
+        return Array.from({length: Math.ceil(hoursDuration)}, (_, i) => hr + i);
       });
 
       const availableSlots = standardSlots.filter(slot => {
         const slotHour = parseInt(slot.split(":")[0]);
         return !bookedHours.includes(slotHour);
-      });
+      }).sort((a, b) => parseInt(a.split(":")[0]) - parseInt(b.split(":")[0])); // Keep sorted
 
       res.json({ availableSlots });
     } catch (error: any) {
