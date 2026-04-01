@@ -1,0 +1,18 @@
+node_modules
+dist
+.DS_Store
+# Database
+sqlite.db
+sqlite.db-journal
+migrations/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor
+.vscode
+.idea
+
+# Build
+*.tar.gz
