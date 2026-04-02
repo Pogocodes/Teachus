@@ -68,7 +68,7 @@ export default function CourseCard({ course }: CourseCardProps) {
             </div>
           </div>
           <div className="text-right">
-            <p className="text-2xl font-bold text-slate-800">${course.price}</p>
+            <p className="text-2xl font-bold text-slate-800">₹{course.price}</p>
           </div>
         </div>
         

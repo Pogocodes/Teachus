@@ -294,10 +294,10 @@ export default function Booking() {
                     onChange={(e) => setDuration(parseFloat(e.target.value))}
                     className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                   >
-                    <option value={0.5}>30 minutes - ${(hourlyRate * 0.5).toFixed(0)}</option>
-                    <option value={1}>1 hour - ${hourlyRate}</option>
-                    <option value={1.5}>1.5 hours - ${(hourlyRate * 1.5).toFixed(0)}</option>
-                    <option value={2}>2 hours - ${(hourlyRate * 2).toFixed(0)}</option>
+                    <option value={0.5}>30 minutes - ₹{(hourlyRate * 0.5).toFixed(0)}</option>
+                    <option value={1}>1 hour - ₹{hourlyRate}</option>
+                    <option value={1.5}>1.5 hours - ₹{(hourlyRate * 1.5).toFixed(0)}</option>
+                    <option value={2}>2 hours - ₹{(hourlyRate * 2).toFixed(0)}</option>
                   </select>
                 </div>
 
@@ -355,7 +355,7 @@ export default function Booking() {
                 <div className="border-t border-slate-200 pt-4">
                   <div className="flex justify-between text-lg font-bold">
                     <span className="text-slate-800">Total:</span>
-                    <span className="text-slate-800">${totalPrice.toFixed(0)}</span>
+                    <span className="text-slate-800">₹{totalPrice.toFixed(0)}</span>
                   </div>
                 </div>
               </div>

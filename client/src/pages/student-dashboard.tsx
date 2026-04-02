@@ -310,7 +310,12 @@ export default function StudentDashboard() {
                             {startSession.isPending ? <><i className="fas fa-spinner fa-spin mr-2"></i>Connecting...</> : "Start / Join Session"}
                           </Button>
                         ) : booking.sessionType !== "offline" ? (
-                          <Button variant="secondary" size="sm" className="w-full" disabled={!isAccepted}>
+                          <Button variant="secondary" size="sm" className="w-full" disabled={!isAccepted}
+                            onClick={() => toast({
+                              title: `📋 ${booking.course?.title || "1-on-1 Session"}`,
+                              description: `Waiting for tutor approval • ${new Date(booking.sessionDate).toLocaleDateString()} at ${new Date(booking.sessionDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • ${booking.duration}hr with ${booking.instructor.user.fullName}`
+                            })}
+                          >
                             View Details
                           </Button>
                         ) : null}
@@ -379,14 +384,18 @@ export default function StudentDashboard() {
                       Find Instructors
                     </Button>
                   </Link>
-                  <Button variant="outline" className="w-full justify-start">
-                    <i className="fas fa-message mr-2"></i>
-                    Messages
-                  </Button>
-                  <Button variant="outline" className="w-full justify-start">
-                    <i className="fas fa-cog mr-2"></i>
-                    Settings
-                  </Button>
+                  <Link href="/messages">
+                    <Button variant="outline" className="w-full justify-start">
+                      <i className="fas fa-message mr-2"></i>
+                      Messages
+                    </Button>
+                  </Link>
+                  <Link href="/profile">
+                    <Button variant="outline" className="w-full justify-start">
+                      <i className="fas fa-cog mr-2"></i>
+                      Settings
+                    </Button>
+                  </Link>
                 </div>
               </CardContent>
             </Card>

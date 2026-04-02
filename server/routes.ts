@@ -216,10 +216,13 @@ export async function registerRoutes(app: Express, storage: IStorage): Promise<S
       const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
       const dayName = daysOfWeek[dateObj.getDay()];
 
-      if (instructor.availability && instructor.availability.days && instructor.availability.times) {
+      if (instructor.availability && Array.isArray(instructor.availability.days) && instructor.availability.days.length > 0) {
         if (!instructor.availability.days.includes(dayName)) {
           return res.json({ availableSlots: [] }); // Not available on this day
         }
+      }
+
+      if (instructor.availability && Array.isArray(instructor.availability.times) && instructor.availability.times.length > 0) {
         // Exclude generic slots and use the instructor's configured time slots
         standardSlots = instructor.availability.times;
       }

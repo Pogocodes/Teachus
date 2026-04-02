@@ -117,7 +117,7 @@ export default function CourseDetail() {
               <Card>
                 <CardContent className="p-6">
                   <div className="text-center mb-6">
-                    <p className="text-3xl font-bold text-slate-800 mb-2">${course.price}</p>
+                    <p className="text-3xl font-bold text-slate-800 mb-2">₹{course.price}</p>
                     <p className="text-slate-600">One-time payment</p>
                   </div>
                   

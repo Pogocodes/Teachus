@@ -184,9 +184,9 @@ export default function InstructorDashboard() {
           <Card>
             <CardContent className="p-6 text-center">
               <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                <i className="fas fa-dollar-sign text-green-600 text-xl"></i>
+                <i className="fas fa-indian-rupee-sign text-green-600 text-xl"></i>
               </div>
-              <p className="text-2xl font-bold text-slate-800 mb-1">${totalEarnings.toFixed(0)}</p>
+              <p className="text-2xl font-bold text-slate-800 mb-1">₹{totalEarnings.toFixed(0)}</p>
               <p className="text-sm text-slate-600">Total Earnings</p>
             </CardContent>
           </Card>
@@ -209,12 +209,12 @@ export default function InstructorDashboard() {
                 <div key={booking.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border border-slate-100 bg-slate-50 rounded-lg">
                   <div className="flex items-center mb-4 sm:mb-0">
                     <img 
-                      src={booking.student.avatar || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"} 
-                      alt={booking.student.fullName}
+                      src={booking.student?.avatar || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"} 
+                      alt={booking.student?.fullName || "Student"}
                       className="w-12 h-12 rounded-full mr-4 object-cover border" 
                     />
                     <div>
-                      <h4 className="font-semibold text-slate-800">{booking.student.fullName}</h4>
+                      <h4 className="font-semibold text-slate-800">{booking.student?.fullName || "Student"}</h4>
                       <p className="text-sm text-slate-600">
                         {booking.course?.title || "1-on-1 Session"} • {booking.duration} hr(s)
                       </p>
@@ -272,7 +272,7 @@ export default function InstructorDashboard() {
                               <h4 className="font-semibold text-slate-800 mb-1">
                                 {booking.course?.title || "1-on-1 Session"}
                               </h4>
-                              <p className="text-sm text-slate-600 mb-1">with {booking.student.fullName}</p>
+                              <p className="text-sm text-slate-600 mb-1">with {booking.student?.fullName || "Student"}</p>
                               <div className="flex items-center text-sm text-slate-600 mb-2">
                                 <i className="fas fa-clock mr-1"></i>
                                 <span>{new Date(booking.sessionDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
@@ -356,7 +356,7 @@ export default function InstructorDashboard() {
                       <i className="fas fa-plus-circle text-4xl text-slate-400 mb-4"></i>
                       <h3 className="text-xl font-semibold text-slate-800 mb-2">Create your first course</h3>
                       <p className="text-slate-600 mb-6">Start sharing your knowledge with students worldwide</p>
-                      <Button>Create Course</Button>
+                      <Button onClick={() => toast({ title: "Coming Soon! 🚧", description: "Course creation will be available in an upcoming update." })}>Create Course</Button>
                     </CardContent>
                   </Card>
                 )}
@@ -391,7 +391,7 @@ export default function InstructorDashboard() {
                             {booking.sessionType}
                           </Badge>
                         </div>
-                        <p className="text-sm text-slate-600 mb-2">with {booking.student.fullName}</p>
+                        <p className="text-sm text-slate-600 mb-2">with {booking.student?.fullName || "Student"}</p>
                         <div className="flex items-center text-sm text-slate-600 mb-3">
                           <i className="fas fa-calendar mr-2"></i>
                           <span>{new Date(booking.sessionDate).toLocaleDateString()} at {new Date(booking.sessionDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
@@ -408,7 +408,10 @@ export default function InstructorDashboard() {
                             {startSession.isPending ? <><i className="fas fa-spinner fa-spin mr-2"></i>Connecting...</> : "Start / Join Session"}
                           </Button>
                         ) : (
-                          <Button variant="secondary" size="sm" className="w-full">
+                          <Button variant="secondary" size="sm" className="w-full" onClick={() => toast({
+                            title: `📋 ${booking.course?.title || "1-on-1 Session"}`,
+                            description: `${booking.sessionType === "offline" ? `📍 ${booking.location || "Location TBD"}` : "Online session"} • ${new Date(booking.sessionDate).toLocaleDateString()} at ${new Date(booking.sessionDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • ${booking.duration}hr with ${booking.student?.fullName || "Student"}`
+                          })}>
                             View Details
                           </Button>
                         )}
@@ -430,20 +433,20 @@ export default function InstructorDashboard() {
                 <h3 className="text-lg font-semibold text-slate-800 mb-4">Quick Actions</h3>
                 
                 <div className="space-y-3">
-                  <Button variant="outline" className="w-full justify-start">
+                  <Button variant="outline" className="w-full justify-start" onClick={() => toast({ title: "Coming Soon! 🚧", description: "Course creation will be available in an upcoming update." })}>
                     <i className="fas fa-plus mr-2"></i>
                     Create Course
                   </Button>
-                  <Button variant="outline" className="w-full justify-start">
+                  <Button variant="outline" className="w-full justify-start" onClick={() => setLocation("/profile")}>
                     <i className="fas fa-calendar-plus mr-2"></i>
                     Set Availability
                   </Button>
-                  <Button variant="outline" className="w-full justify-start">
+                  <Button variant="outline" className="w-full justify-start" onClick={() => toast({ title: "Coming Soon! 🚧", description: "Detailed analytics will be available in an upcoming update." })}>
                     <i className="fas fa-chart-line mr-2"></i>
                     View Analytics
                   </Button>
-                  <Button variant="outline" className="w-full justify-start">
-                    <i className="fas fa-dollar-sign mr-2"></i>
+                  <Button variant="outline" className="w-full justify-start" onClick={() => toast({ title: "Coming Soon! 🚧", description: "Earnings reports will be available in an upcoming update." })}>
+                    <i className="fas fa-indian-rupee-sign mr-2"></i>
                     Earnings Report
                   </Button>
                 </div>
@@ -462,11 +465,11 @@ export default function InstructorDashboard() {
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-slate-600 text-sm">New Students:</span>
-                    <span className="font-semibold text-slate-800">{Array.from(new Set(bookings.map(b => b.student.id))).length}</span>
+                    <span className="font-semibold text-slate-800">{Array.from(new Set(bookings.map(b => b.student?.id).filter(Boolean))).length}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-slate-600 text-sm">Earnings:</span>
-                    <span className="font-semibold text-slate-800">${totalEarnings.toFixed(0)}</span>
+                    <span className="font-semibold text-slate-800">₹{totalEarnings.toFixed(0)}</span>
                   </div>
                 </div>
               </CardContent>

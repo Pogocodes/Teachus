@@ -102,7 +102,7 @@ export default function InstructorProfile() {
                 <CardContent className="p-6">
                   <div className="text-center mb-6">
                     <p className="text-3xl font-bold text-slate-800 mb-2">
-                      ${instructor.hourlyRate}/hour
+                      ₹{instructor.hourlyRate}/hour
                     </p>
                     <p className="text-slate-600">Starting rate</p>
                   </div>
@@ -329,19 +329,19 @@ export default function InstructorProfile() {
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
                         <span className="text-slate-600">30 minutes:</span>
-                        <span className="font-medium">${Math.round(parseFloat(instructor.hourlyRate) * 0.5)}</span>
+                        <span className="font-medium">₹{Math.round(parseFloat(instructor.hourlyRate) * 0.5)}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-slate-600">1 hour:</span>
-                        <span className="font-medium">${instructor.hourlyRate}</span>
+                        <span className="font-medium">₹{instructor.hourlyRate}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-slate-600">1.5 hours:</span>
-                        <span className="font-medium">${Math.round(parseFloat(instructor.hourlyRate) * 1.5)}</span>
+                        <span className="font-medium">₹{Math.round(parseFloat(instructor.hourlyRate) * 1.5)}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-slate-600">2 hours:</span>
-                        <span className="font-medium">${Math.round(parseFloat(instructor.hourlyRate) * 2)}</span>
+                        <span className="font-medium">₹{Math.round(parseFloat(instructor.hourlyRate) * 2)}</span>
                       </div>
                     </div>
                   </div>

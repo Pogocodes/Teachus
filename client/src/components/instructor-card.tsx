@@ -43,7 +43,7 @@ export default function InstructorCard({ instructor }: InstructorCardProps) {
         
         <div className="mb-4">
           <p className="text-sm text-slate-600">Starting from</p>
-          <p className="text-lg font-bold text-slate-800">${instructor.hourlyRate}/hour</p>
+          <p className="text-lg font-bold text-slate-800">₹{instructor.hourlyRate}/hour</p>
         </div>
         
         <Link href={`/instructors/${instructor.id}`}>

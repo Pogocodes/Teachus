@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useLocation, useParams } from "wouter";
+import { CourseWithInstructor } from "@shared/schema";
 
 export default function Checkout() {
   const { courseId } = useParams<{ courseId: string }>();
@@ -33,7 +34,7 @@ export default function Checkout() {
     cardName: ""
   });
 
-  const { data: course, isLoading } = useQuery({
+  const { data: course, isLoading } = useQuery<CourseWithInstructor>({
     queryKey: ["/api/courses", courseId],
     enabled: !!courseId,
   });
@@ -297,7 +298,7 @@ export default function Checkout() {
                 className="w-full bg-primary hover:bg-blue-700 text-lg py-6"
                 disabled={checkoutMutation.isPending}
               >
-                {checkoutMutation.isPending ? "Processing..." : `Complete Purchase - $${total.toFixed(2)}`}
+                {checkoutMutation.isPending ? "Processing..." : `Complete Purchase - ₹${total.toFixed(2)}`}
               </Button>
             </form>
           </div>
@@ -331,16 +332,16 @@ export default function Checkout() {
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <span>Course Price</span>
-                    <span>${course.price}</span>
+                    <span>₹{course.price}</span>
                   </div>
                   <div className="flex justify-between text-sm text-slate-600">
                     <span>Tax</span>
-                    <span>${tax.toFixed(2)}</span>
+                    <span>₹{tax.toFixed(2)}</span>
                   </div>
                   <Separator />
                   <div className="flex justify-between font-semibold text-lg">
                     <span>Total</span>
-                    <span>${total.toFixed(2)}</span>
+                    <span>₹{total.toFixed(2)}</span>
                   </div>
                 </div>
 
