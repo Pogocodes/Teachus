@@ -441,6 +441,10 @@ export default function InstructorDashboard() {
                     <i className="fas fa-calendar-plus mr-2"></i>
                     Set Availability
                   </Button>
+                  <Button variant="outline" className="w-full justify-start" onClick={() => setLocation("/recordings")}>
+                    <i className="fas fa-video mr-2"></i>
+                    Session Recordings
+                  </Button>
                   <Button variant="outline" className="w-full justify-start" onClick={() => toast({ title: "Coming Soon! 🚧", description: "Detailed analytics will be available in an upcoming update." })}>
                     <i className="fas fa-chart-line mr-2"></i>
                     View Analytics

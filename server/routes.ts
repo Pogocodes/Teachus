@@ -4,12 +4,28 @@ import { IStorage } from "./storage";
 import { insertUserSchema, insertCourseSchema, insertInstructorSchema, insertBookingSchema, insertReviewSchema, insertEnrollmentSchema } from "@shared/schema";
 import { setupSocketServer, getIO } from "./socket";
 import crypto from "crypto";
+import path from "path";
+import fs from "fs";
+import multer from "multer";
 import { sendOTPEmail } from "./email";
 
 export async function registerRoutes(app: Express, storage: IStorage): Promise<Server> {
   // Auth routes are handled in auth.ts
 
-
+  // Setup recording uploads directory
+  const uploadDir = path.join(process.cwd(), "uploads", "recordings");
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
+  const upload = multer({
+    storage: multer.diskStorage({
+      destination: uploadDir,
+      filename: (_req, _file, cb) => {
+        cb(null, `recording_${Date.now()}_${crypto.randomUUID().slice(0, 8)}.webm`);
+      },
+    }),
+    limits: { fileSize: 500 * 1024 * 1024 },
+  });
   // Users routes
   app.get("/api/users/:id", async (req, res) => {
     try {
@@ -639,6 +655,179 @@ export async function registerRoutes(app: Express, storage: IStorage): Promise<S
       }
 
       res.json(session);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+
+  // ── Session Recordings ──────────────────────────────────────
+
+  app.post("/api/recordings", async (req, res) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      const data = req.body;
+      const recording = await storage.createRecording(data);
+      res.json(recording);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/recordings/my", async (req, res) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      const userId = (req.user as any).id;
+      const recordings = await storage.getRecordingsByUser(userId);
+      res.json(recordings);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/recordings/session/:sessionId", async (req, res) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      const sessionId = req.params.sessionId;
+      const userId = (req.user as any).id;
+      const session = await storage.getLiveSession(sessionId);
+      if (session && session.studentId !== userId && session.instructor.userId !== userId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      const recordings = await storage.getRecordingsBySession(sessionId);
+      res.json(recordings);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.patch("/api/recordings/:id", async (req, res) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      const id = parseInt(req.params.id);
+      const recording = await storage.updateRecording(id, req.body);
+      if (!recording) {
+        return res.status(404).json({ message: "Recording not found" });
+      }
+      res.json(recording);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/recordings/:id/upload", upload.single("recording"), async (req, res) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      const id = parseInt(req.params.id);
+      const recording = await storage.getRecording(id);
+      if (!recording) {
+        return res.status(404).json({ message: "Recording not found" });
+      }
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+      const duration = parseInt(req.body?.duration || "0");
+      const updated = await storage.updateRecording(id, {
+        status: "uploaded",
+        filePath: req.file.path,
+        fileSize: req.file.size,
+        duration,
+        endedAt: new Date(),
+      });
+      res.json(updated);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/recordings/:id/file", async (req, res) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      const id = parseInt(req.params.id);
+      const recording = await storage.getRecording(id);
+      if (!recording || !recording.filePath) {
+        return res.status(404).json({ message: "Recording not found" });
+      }
+      const userId = (req.user as any).id;
+      const session = await storage.getLiveSession(recording.sessionId);
+      if (session && session.studentId !== userId && session.instructor.userId !== userId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      const absolutePath = path.resolve(recording.filePath);
+      if (!fs.existsSync(absolutePath)) {
+        return res.status(404).json({ message: "Recording file not found on server" });
+      }
+      const stat = fs.statSync(absolutePath);
+      res.setHeader("Content-Type", "video/webm");
+      res.setHeader("Content-Length", stat.size.toString());
+      res.setHeader("Content-Disposition", `inline; filename="recording-${recording.id}.webm"`);
+      fs.createReadStream(absolutePath).pipe(res);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // ── Issue Reporting ──────────────────────────────────────
+
+  app.post("/api/issues", async (req, res) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      const { sessionId, issueType, description } = req.body;
+      const userId = (req.user as any).id;
+      const userRole = (req.user as any).role;
+      const issue = await storage.createIssue({
+        sessionId,
+        reportedBy: userId,
+        role: userRole === "instructor" ? "tutor" : "student",
+        issueType,
+        description,
+      });
+      res.json(issue);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/issues/my", async (req, res) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      const userId = (req.user as any).id;
+      const issues = await storage.getIssuesByUser(userId);
+      res.json(issues);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/issues/session/:sessionId", async (req, res) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      const sessionId = req.params.sessionId;
+      const userId = (req.user as any).id;
+      const session = await storage.getLiveSession(sessionId);
+      if (session && session.studentId !== userId && session.instructor.userId !== userId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      const issues = await storage.getIssuesBySession(sessionId);
+      res.json(issues);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }

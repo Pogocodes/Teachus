@@ -114,6 +114,17 @@ export function setupSocketServer(httpServer: HttpServer, storage: IStorage) {
       const { roomId, reaction, senderName } = data;
       socket.to(roomId).emit("reaction", { reaction, senderName });
     });
+
+    // Recording status
+    socket.on("recording-started", (data) => {
+      const { roomId } = data;
+      socket.to(roomId).emit("recording-started");
+    });
+
+    socket.on("recording-stopped", (data) => {
+      const { roomId } = data;
+      socket.to(roomId).emit("recording-stopped");
+    });
   });
 
   return io;

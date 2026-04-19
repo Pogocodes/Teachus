@@ -6,7 +6,9 @@ import {
   type Review, type InsertReview, type Message, type InsertMessage,
   type LiveSession, type InsertLiveSession,
   type CourseWithInstructor, type InstructorWithUser, type ReviewWithUser,
-  type BookingWithDetails, type LiveSessionWithDetails
+  type BookingWithDetails, type LiveSessionWithDetails,
+  type SessionRecording, type InsertSessionRecording,
+  type SessionIssue, type InsertSessionIssue
 } from "@shared/schema";
 
 export interface IStorage {
@@ -76,6 +78,19 @@ export interface IStorage {
   createStudent(student: InsertStudent): Promise<Student>;
   getStudentByUserId(userId: number): Promise<Student | undefined>;
   updateStudent(id: number, updates: Partial<Student>): Promise<Student | undefined>;
+
+  // Recordings
+  createRecording(data: InsertSessionRecording): Promise<SessionRecording>;
+  getRecording(id: number): Promise<SessionRecording | undefined>;
+  getRecordingsBySession(sessionId: string): Promise<SessionRecording[]>;
+  getRecordingsByUser(userId: number): Promise<SessionRecording[]>;
+  updateRecording(id: number, updates: Partial<SessionRecording>): Promise<SessionRecording | undefined>;
+
+  // Issues
+  createIssue(data: InsertSessionIssue): Promise<SessionIssue>;
+  getIssuesByUser(userId: number): Promise<SessionIssue[]>;
+  getIssuesBySession(sessionId: string): Promise<SessionIssue[]>;
+  updateIssue(id: number, updates: Partial<SessionIssue>): Promise<SessionIssue | undefined>;
 }
 
 export class MemStorage implements IStorage {
@@ -88,6 +103,8 @@ export class MemStorage implements IStorage {
   private reviews: Map<number, Review> = new Map();
   private messages: Map<number, Message> = new Map();
   private liveSessions: Map<string, LiveSession> = new Map();
+  private sessionRecordings: Map<number, SessionRecording> = new Map();
+  private sessionIssues: Map<number, SessionIssue> = new Map();
 
   private currentUserId = 1;
   private currentInstructorId = 1;
@@ -97,6 +114,8 @@ export class MemStorage implements IStorage {
   private currentBookingId = 1;
   private currentReviewId = 1;
   private currentMessageId = 1;
+  private currentRecordingId = 1;
+  private currentIssueId = 1;
 
   constructor() {
     this.seedData();
@@ -724,6 +743,74 @@ export class MemStorage implements IStorage {
 
   async updateStudent(_id: number, _updates: Partial<Student>): Promise<Student | undefined> {
     return undefined;
+  }
+
+  // Recordings
+  async createRecording(data: InsertSessionRecording): Promise<SessionRecording> {
+    const recording: SessionRecording = {
+      ...data,
+      id: this.currentRecordingId++,
+      status: data.status || "recording",
+      filePath: data.filePath || null,
+      fileSize: data.fileSize || null,
+      duration: data.duration || null,
+      startedAt: new Date(),
+      endedAt: null,
+      errorMessage: data.errorMessage || null,
+    };
+    this.sessionRecordings.set(recording.id, recording);
+    return recording;
+  }
+
+  async getRecording(id: number): Promise<SessionRecording | undefined> {
+    return this.sessionRecordings.get(id);
+  }
+
+  async getRecordingsBySession(sessionId: string): Promise<SessionRecording[]> {
+    return Array.from(this.sessionRecordings.values()).filter(r => r.sessionId === sessionId);
+  }
+
+  async getRecordingsByUser(userId: number): Promise<SessionRecording[]> {
+    const instructorEntry = Array.from(this.instructors.values()).find(i => i.userId === userId);
+    return Array.from(this.sessionRecordings.values()).filter(r =>
+      r.studentId === userId || (instructorEntry && r.tutorId === instructorEntry.id)
+    );
+  }
+
+  async updateRecording(id: number, updates: Partial<SessionRecording>): Promise<SessionRecording | undefined> {
+    const recording = this.sessionRecordings.get(id);
+    if (!recording) return undefined;
+    const updated = { ...recording, ...updates };
+    this.sessionRecordings.set(id, updated);
+    return updated;
+  }
+
+  // Issues
+  async createIssue(data: InsertSessionIssue): Promise<SessionIssue> {
+    const issue: SessionIssue = {
+      ...data,
+      id: this.currentIssueId++,
+      status: "open",
+      createdAt: new Date(),
+    };
+    this.sessionIssues.set(issue.id, issue);
+    return issue;
+  }
+
+  async getIssuesByUser(userId: number): Promise<SessionIssue[]> {
+    return Array.from(this.sessionIssues.values()).filter(i => i.reportedBy === userId);
+  }
+
+  async getIssuesBySession(sessionId: string): Promise<SessionIssue[]> {
+    return Array.from(this.sessionIssues.values()).filter(i => i.sessionId === sessionId);
+  }
+
+  async updateIssue(id: number, updates: Partial<SessionIssue>): Promise<SessionIssue | undefined> {
+    const issue = this.sessionIssues.get(id);
+    if (!issue) return undefined;
+    const updated = { ...issue, ...updates };
+    this.sessionIssues.set(id, updated);
+    return updated;
   }
 }
 

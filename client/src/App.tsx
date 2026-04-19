@@ -24,6 +24,7 @@ import Navbar from "@/components/layout/navbar";
 import Footer from "@/components/layout/footer";
 import Algorithm from "./components/Algorithm";
 import Meeting from "@/pages/meeting";
+import Recordings from "@/pages/recordings";
 
 function Router() {
   const [location] = useLocation();
@@ -47,6 +48,7 @@ function Router() {
           <Route path="/auth" component={Auth} />
           <Route path="/tutor-onboarding" component={TutorOnboarding} />
           <ProtectedRoute path="/profile" component={Profile} />
+          <ProtectedRoute path="/recordings" component={Recordings} />
           <ProtectedRoute path="/messages" component={Messages} />
           <ProtectedRoute path="/checkout/:courseId" component={Checkout} />
           <Route component={NotFound} />

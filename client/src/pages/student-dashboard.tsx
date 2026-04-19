@@ -390,6 +390,12 @@ export default function StudentDashboard() {
                       Messages
                     </Button>
                   </Link>
+                  <Link href="/recordings">
+                    <Button variant="outline" className="w-full justify-start">
+                      <i className="fas fa-video mr-2"></i>
+                      Session Recordings
+                    </Button>
+                  </Link>
                   <Link href="/profile">
                     <Button variant="outline" className="w-full justify-start">
                       <i className="fas fa-cog mr-2"></i>

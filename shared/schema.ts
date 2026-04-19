@@ -143,6 +143,34 @@ export const liveSessions = pgTable("live_sessions", {
   endTime: timestamp("end_time"),
 });
 
+// Session Recordings
+export const sessionRecordings = pgTable("session_recordings", {
+  id: serial("id").primaryKey(),
+  sessionId: text("session_id").references(() => liveSessions.id).notNull(),
+  tutorId: integer("tutor_id").references(() => instructors.id).notNull(),
+  studentId: integer("student_id").references(() => users.id).notNull(),
+  bookingId: integer("booking_id").references(() => bookings.id).notNull(),
+  status: text("status").default("recording"), // 'recording' | 'completed' | 'failed' | 'uploaded'
+  filePath: text("file_path"),
+  fileSize: integer("file_size"),
+  duration: integer("duration"), // seconds
+  startedAt: timestamp("started_at").defaultNow(),
+  endedAt: timestamp("ended_at"),
+  errorMessage: text("error_message"),
+});
+
+// Session Issues
+export const sessionIssues = pgTable("session_issues", {
+  id: serial("id").primaryKey(),
+  sessionId: text("session_id").references(() => liveSessions.id).notNull(),
+  reportedBy: integer("reported_by").references(() => users.id).notNull(),
+  role: text("role").notNull(), // 'student' | 'tutor'
+  issueType: text("issue_type").notNull(), // 'tutor_absent' | 'technical_issue' | 'misconduct' | 'other'
+  description: text("description").notNull(),
+  status: text("status").default("open"), // 'open' | 'resolved'
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({ id: true });
 export const insertCategorySchema = createInsertSchema(categories).omit({ id: true, courseCount: true });
@@ -155,6 +183,8 @@ export const insertReviewSchema = createInsertSchema(reviews).omit({ id: true, r
 export const insertMessageSchema = createInsertSchema(messages).omit({ id: true, sentAt: true, isRead: true });
 export const insertInteractionSchema = createInsertSchema(interactions).omit({ id: true, timestamp: true });
 export const insertLiveSessionSchema = createInsertSchema(liveSessions).omit({ startTime: true, endTime: true });
+export const insertSessionRecordingSchema = createInsertSchema(sessionRecordings).omit({ id: true, startedAt: true, endedAt: true });
+export const insertSessionIssueSchema = createInsertSchema(sessionIssues).omit({ id: true, status: true, createdAt: true });
 
 // Types
 export type User = typeof users.$inferSelect;
@@ -179,6 +209,10 @@ export type Interaction = typeof interactions.$inferSelect;
 export type InsertInteraction = z.infer<typeof insertInteractionSchema>;
 export type LiveSession = typeof liveSessions.$inferSelect;
 export type InsertLiveSession = z.infer<typeof insertLiveSessionSchema>;
+export type SessionRecording = typeof sessionRecordings.$inferSelect;
+export type InsertSessionRecording = z.infer<typeof insertSessionRecordingSchema>;
+export type SessionIssue = typeof sessionIssues.$inferSelect;
+export type InsertSessionIssue = z.infer<typeof insertSessionIssueSchema>;
 
 // Extended types for frontend use
 export type CourseWithInstructor = Course & {

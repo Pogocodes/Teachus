@@ -1,14 +1,16 @@
 import { eq, and, or, desc, asc, like, sql } from "drizzle-orm";
 import { db } from "./db";
 import {
-  users, instructors, students, courses, categories, enrollments, bookings, reviews, messages, interactions, liveSessions,
+  users, instructors, students, courses, categories, enrollments, bookings, reviews, messages, interactions, liveSessions, sessionRecordings, sessionIssues,
   type User, type InsertUser, type Instructor, type InsertInstructor, type Student, type InsertStudent,
   type Course, type InsertCourse, type Category, type InsertCategory,
   type Enrollment, type InsertEnrollment, type Booking, type InsertBooking,
   type Review, type InsertReview, type Message, type InsertMessage,
   type CourseWithInstructor, type InstructorWithUser, type ReviewWithUser,
   type BookingWithDetails, type Interaction, type InsertInteraction,
-  type LiveSession, type InsertLiveSession, type LiveSessionWithDetails
+  type LiveSession, type InsertLiveSession, type LiveSessionWithDetails,
+  type SessionRecording, type InsertSessionRecording,
+  type SessionIssue, type InsertSessionIssue
 } from "./db";
 import { IStorage } from "./storage";
 
@@ -1057,6 +1059,72 @@ export class DbStorage implements IStorage {
 
   async updateLiveSession(id: string, updates: Partial<LiveSession>): Promise<LiveSession | undefined> {
     const result = await db.update(liveSessions).set(updates).where(eq(liveSessions.id, id)).returning();
+    return result[0];
+  }
+
+  // Recordings
+  async createRecording(data: InsertSessionRecording): Promise<SessionRecording> {
+    const result = await db.insert(sessionRecordings).values(data as any).returning();
+    return result[0];
+  }
+
+  async getRecording(id: number): Promise<SessionRecording | undefined> {
+    const result = await db.select().from(sessionRecordings).where(eq(sessionRecordings.id, id)).limit(1);
+    return result[0];
+  }
+
+  async getRecordingsBySession(sessionId: string): Promise<SessionRecording[]> {
+    return await db.select().from(sessionRecordings)
+      .where(eq(sessionRecordings.sessionId, sessionId))
+      .orderBy(desc(sessionRecordings.startedAt));
+  }
+
+  async getRecordingsByUser(userId: number): Promise<SessionRecording[]> {
+    const asStudent = await db.select().from(sessionRecordings)
+      .where(eq(sessionRecordings.studentId, userId))
+      .orderBy(desc(sessionRecordings.startedAt));
+
+    const instructorResult = await db.select().from(instructors)
+      .where(eq(instructors.userId, userId)).limit(1);
+
+    let asTutor: SessionRecording[] = [];
+    if (instructorResult.length > 0) {
+      asTutor = await db.select().from(sessionRecordings)
+        .where(eq(sessionRecordings.tutorId, instructorResult[0].id))
+        .orderBy(desc(sessionRecordings.startedAt));
+    }
+
+    const seen = new Set<number>();
+    return [...asStudent, ...asTutor]
+      .filter(r => { if (seen.has(r.id)) return false; seen.add(r.id); return true; })
+      .sort((a, b) => (b.startedAt?.getTime() || 0) - (a.startedAt?.getTime() || 0));
+  }
+
+  async updateRecording(id: number, updates: Partial<SessionRecording>): Promise<SessionRecording | undefined> {
+    const result = await db.update(sessionRecordings).set(updates).where(eq(sessionRecordings.id, id)).returning();
+    return result[0];
+  }
+
+  // Issues
+  async createIssue(data: InsertSessionIssue): Promise<SessionIssue> {
+    const result = await db.insert(sessionIssues).values(data as any).returning();
+    return result[0];
+  }
+
+  async getIssuesByUser(userId: number): Promise<SessionIssue[]> {
+    return await db.select().from(sessionIssues)
+      .where(eq(sessionIssues.reportedBy, userId))
+      .orderBy(desc(sessionIssues.createdAt));
+  }
+
+  async getIssuesBySession(sessionId: string): Promise<SessionIssue[]> {
+    return await db.select().from(sessionIssues)
+      .where(eq(sessionIssues.sessionId, sessionId))
+      .orderBy(desc(sessionIssues.createdAt));
+  }
+
+  async updateIssue(id: number, updates: Partial<SessionIssue>): Promise<SessionIssue | undefined> {
+    const result = await db.update(sessionIssues).set(updates).where(eq(sessionIssues.id, id)).returning();
     return result[0];
   }
 }
